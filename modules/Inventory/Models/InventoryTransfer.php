@@ -156,10 +156,9 @@ class InventoryTransfer extends ModelTenant
                     'code' => $o->item_lot->series,
                 ];
             }
-        });;
+        });
         $data['configuration'] = Configuration::first();
         $data['company'] = Company::active();
-
         return $data;
     }
 

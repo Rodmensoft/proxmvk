@@ -7,10 +7,13 @@ use App\Models\Tenant\Cash;
 use App\Models\Tenant\Company;
 use App\Models\Tenant\Configuration;
 use App\Models\Tenant\PaymentMethodType;
+use App\Models\Tenant\SaleNote;
+use App\Models\Tenant\SaleNotePayment;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Mail;
+use Modules\Inventory\Models\Inventory;
 use Modules\Pos\Exports\ReportCashExport;
 use Modules\Pos\Mail\CashEmail;
 use Mpdf\Mpdf;
@@ -100,12 +103,12 @@ class CashController extends Controller
         /** @var Cash $cash */
         $cash = Cash::findOrFail($cash_id);
         $establishment = $cash->user->establishment;
+        $warehouse = $cash->user->establishment->warehouse;
         $status_type_id = self::getStateTypeId();
         $final_balance = 0;
         $cash_income = 0;
         $credit = 0;
         $cash_egress = 0;
-        $cash_final_balance = 0;
         $cash_documents = $cash->cash_documents;
         $all_documents = [];
 
@@ -140,6 +143,7 @@ class CashController extends Controller
         $data['status_type_id'] = $status_type_id;
 
         $data['establishment'] = $establishment;
+        $data['warehouse'] = $warehouse;
         $data['establishment_address'] = $establishment->address;
         $data['establishment_department_description'] = $establishment->department->description;
         $data['establishment_district_description'] = $establishment->district->description;
@@ -367,7 +371,7 @@ class CashController extends Controller
                 // fin items
             }
             /** Documentos de Tipo Servicio tecnico */
-            elseif ($cash_document->technical_service) 
+            elseif ($cash_document->technical_service)
             {
                 $usado = '<br>Se usan para cash<br>';
                 $technical_service = $cash_document->technical_service;
@@ -856,6 +860,14 @@ class CashController extends Controller
         if($mm != null) {
             $width = $mm - 2;
         }
+        if ($format === 'settlement') {
+            $data['inventory_input'] = $this->getInventoryInput($data);
+            $data['inventory_output'] = $this->getInventoryOutput($data);
+            $data['inventory_return'] = $this->getInventoryReturn($data);
+            $data['payment_method_type_sales'] = $this->getPaymentMethodTypeSales($data);
+        }
+
+        $data['payment_method_type_sales_total'] = $this->getPaymentMethodTypeSalesTotal($data);
 
         $view = view('pos::cash.report_pdf_'.$format, compact('data'));
         if($format === 'simple_a4') {
@@ -884,6 +896,109 @@ class CashController extends Controller
         $pdf->WriteHTML($html);
 
         return $pdf->output('', 'S');
+    }
+
+    public function getPaymentMethodTypeSalesTotal($data) {
+        $total = 0;
+        $total += $data['payment_method_type_sales']['precio_domicilio']['cantidad'] * $data['payment_method_type_sales']['precio_domicilio']['unitario'];
+        $total += $data['payment_method_type_sales']['precio_mayor']['cantidad'] * $data['payment_method_type_sales']['precio_mayor']['unitario'];
+        $total += $data['payment_method_type_sales']['precio_yuramayo']['cantidad'] * $data['payment_method_type_sales']['precio_yuramayo']['unitario'];
+        $total += $data['payment_method_type_sales']['valvula_premium']['cantidad'] * $data['payment_method_type_sales']['valvula_premium']['unitario'];
+        $total += $data['payment_method_type_sales']['fise_domicilio']['cantidad'] * $data['payment_method_type_sales']['fise_domicilio']['unitario'];
+        $total += $data['payment_method_type_sales']['venta_cilindros']['cantidad'] * $data['payment_method_type_sales']['venta_cilindros']['unitario'];
+        $total = $total - $data['payment_method_type_sales']['credito']['cantidad'] * $data['payment_method_type_sales']['credito']['unitario'];
+
+        return $total;
+    }
+
+    public function getPaymentMethodTypeSales($data) {
+        $final_data = [
+            'precio_domicilio' => ['cantidad' => 0, 'unitario' => 0],
+            'precio_mayor' => ['cantidad' => 0, 'unitario' => 0],
+            'precio_yuramayo' => ['cantidad' => 0, 'unitario' => 0],
+            'valvula_premium' => ['cantidad' => 0, 'unitario' => 0],
+            'fise_domicilio' => ['cantidad' => 0, 'unitario' => 0],
+            'venta_cilindros' => ['cantidad' => 0, 'unitario' => 0],
+            'pago_credito' => ['cantidad' => 0, 'unitario' => 0],
+            'promocion' => ['cantidad' => 0, 'unitario' => 0],
+            'credito' => ['cantidad' => 0, 'unitario' => 0],
+        ];
+
+//        dd($data['all_items']);
+        foreach ($data['all_items'] as $item) {
+            $sale_note = SaleNote::where('id', $item->sale_note_id)->with('sale_note_payments')->first();
+            if ($sale_note->payment_method_type_id === '09') {
+                $final_data['credito']['cantidad'] += $item->quantity;
+                $final_data['credito']['unitario'] += $item->unit_value;
+            } else {
+                foreach ($sale_note->sale_note_payments as $payment) {
+                    switch ($payment->payment_method_type->id) {
+                        case '01':
+                            $final_data['precio_domicilio']['cantidad'] += $item->quantity;
+                            $final_data['precio_domicilio']['unitario'] += $item->unit_value;
+                            break;
+                        case '10':
+                            $final_data['precio_mayor']['cantidad'] += $item->quantity;
+                            $final_data['precio_mayor']['unitario'] += $item->unit_value;
+                            break;
+                        case '04':
+                            $final_data['precio_yuramayo']['cantidad'] += $item->quantity;
+                            $final_data['precio_yuramayo']['unitario'] += $item->unit_value;
+                            break;
+                        case '03':
+                            $final_data['valvula_premium']['cantidad'] += $item->quantity;
+                            $final_data['valvula_premium']['unitario'] += $item->unit_value;
+                            break;
+                        case '02':
+                            $final_data['fise_domicilio']['cantidad'] += $item->quantity;
+                            $final_data['fise_domicilio']['unitario'] += $item->unit_value;
+                            break;
+                        case '07':
+                            $final_data['venta_cilindros']['cantidad'] += $item->quantity;
+                            $final_data['venta_cilindros']['unitario'] += $item->unit_value;
+                            break;
+                        case '44':
+                            $final_data['pago_credito']['cantidad'] += $item->quantity;
+                            $final_data['pago_credito']['unitario'] += $item->unit_value;
+                            break;
+                        case '55':
+                            $final_data['promocion']['cantidad'] += $item->quantity;
+                            $final_data['promocion']['unitario'] += $item->unit_value;
+                            break;
+                        case '09':
+                            $final_data['credito']['cantidad'] += $item->quantity;
+                            $final_data['credito']['unitario'] += $item->unit_value;
+                            break;
+                    }
+                }
+            }
+        }
+
+        return $final_data;
+    }
+
+    public function getInventoryInput($data) {
+        $inventories = Inventory::where([
+            ['warehouse_destination_id', $data['warehouse']->id],
+            ['description', 'Traslado']
+        ])
+            ->whereDate('created_at', $data['cash_date_opening'])->get();
+        return $inventories->pluck('quantity')->toArray();
+    }
+
+    public function getInventoryOutput($data) {
+        $inventories = Inventory::where('warehouse_id', $data['warehouse']->id)
+            ->whereDate('created_at', $data['cash_date_opening'])->get();
+        return $inventories->pluck('quantity')->toArray();
+    }
+
+    public function getInventoryReturn($data) {
+        return array_reduce($data['all_items'], function ($carry, $item) {
+            if ($item->to_return == 1) {
+                $carry += $item->quantity;
+            }
+            return $carry;
+        }, 0);
     }
 
     /**

@@ -10,7 +10,7 @@ use Modules\Inventory\Models\Warehouse;
 
 class Establishment extends ModelTenant
 {
-    protected $with = ['country', 'department', 'province', 'district'];
+    protected $with = ['country', 'department', 'province', 'district', 'warehouse'];
     protected $fillable = [
         'description',
         'country_id',
@@ -109,10 +109,10 @@ class Establishment extends ModelTenant
     {
         return $query->withOut(['country', 'department', 'province', 'district']);
     }
-    
-    
+
+
     /**
-     * 
+     *
      * Obtener id del almacén
      *
      * @return int

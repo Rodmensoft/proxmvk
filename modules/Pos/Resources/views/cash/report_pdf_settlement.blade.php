@@ -118,7 +118,7 @@
                 <td class="background-gray"><strong>Placa de Vehiculo :</strong></td>
                 <td colspan="3" class="background-gray"></td>
                 <td class="background-gray"><strong>Fecha :</strong></td>
-                <td class="background-gray">{{date('Y-m-d')}}</td>
+                <td class="background-gray">{{ \Carbon\Carbon::make($data['cash_date_opening'])->format('d-m-Y') }}</td>
             </tr>
             <tr>
                 <td class="background-gray">LIQUIDACION POR DIA</td>
@@ -136,31 +136,31 @@
             </tr>
             <tr>
                 <td class="background-gray"><strong>SALIDA DE CARGA</strong></td>
-                <td class="background-gray"><strong>[llenar]</strong></td>
-                <td class="background-gray"><strong>[llenar]</strong></td>
-                <td class="background-gray"><strong>[llenar]</strong></td>
-                <td class="background-gray"><strong>[llenar]</strong></td>
-                <td class="background-gray"><strong>[llenar]</strong></td>
+                <td class="background-gray">{{ isset($data['inventory_input'][0]) ? $data['inventory_input'][0] : '' }}</td>
+                <td class="background-gray">{{ isset($data['inventory_input'][1]) ? $data['inventory_input'][1] : '' }}</td>
+                <td class="background-gray">{{ isset($data['inventory_input'][2]) ? $data['inventory_input'][2] : '' }}</td>
+                <td class="background-gray">{{ isset($data['inventory_input'][3]) ? $data['inventory_input'][3] : '' }}</td>
+                <td class="background-gray">{{ array_sum($data['inventory_input']) }}</td>
             </tr>
             <tr>
                 <td class="background-gray"><strong>ENTRADA DE CARGA</strong></td>
-                <td class="background-gray"><strong>[llenar]</strong></td>
-                <td class="background-gray"><strong>[llenar]</strong></td>
-                <td class="background-gray"><strong>[llenar]</strong></td>
-                <td class="background-gray"><strong>[llenar]</strong></td>
-                <td class="background-gray"><strong>[llenar]</strong></td>
+                <td class="background-gray">{{ isset($data['inventory_output'][0]) ? $data['inventory_output'][0] : '' }}</td>
+                <td class="background-gray">{{ isset($data['inventory_output'][1]) ? $data['inventory_output'][1] : '' }}</td>
+                <td class="background-gray">{{ isset($data['inventory_output'][2]) ? $data['inventory_output'][2] : '' }}</td>
+                <td class="background-gray">{{ isset($data['inventory_output'][3]) ? $data['inventory_output'][3] : '' }}</td>
+                <td class="background-gray">{{ array_sum($data['inventory_output']) }}</td>
             </tr>
             <tr>
                 <td class="background-gray"><strong>PRESTAMO/DEVOLUCION DE CARGA</strong></td>
-                <td class="background-gray"><strong>[llenar]</strong></td>
-                <td class="background-gray"><strong>[llenar]</strong></td>
-                <td class="background-gray"><strong>[llenar]</strong></td>
-                <td class="background-gray"><strong>[llenar]</strong></td>
-                <td class="background-gray"><strong>[llenar]</strong></td>
+                <td class="background-gray"></td>
+                <td class="background-gray"></td>
+                <td class="background-gray"></td>
+                <td class="background-gray"></td>
+                <td class="background-gray">-{{ $data['inventory_return'] }}</td>
             </tr>
             <tr>
                 <td colspan="5" class="background-green-1"><strong>TOTAL DE VENTAS DE GLP</strong></td>
-                <td class="background-green-2">[llenar]</td>
+                <td class="background-green-2"></td>
             </tr>
             <tr>
                 <td class="background-green-2"><strong>DEVOLUCIONES</strong></td>
@@ -173,85 +173,103 @@
             </tr>
             <tr>
                 <td class="background-green-2"><strong>VENTAS</strong></td>
-                <td colspan="2">[falta]</td>
+                <td colspan="2"></td>
                 <td><strong>CANTIDAD</strong></td>
                 <td><strong>PRECIO UNI</strong></td>
-                <td>[falta]</td>
+                <td></td>
             </tr>
             <tr>
                 <td class="background-cream">PRECIO A DOMICILIO</td>
-                <td class="background-cream" colspan="2">[falta]</td>
-                <td class="background-cream">[falta]</td>
-                <td class="background-cream">[falta]</td>
-                <td class="background-cream">[falta]</td>
+                <td class="background-cream" colspan="2"></td>
+                <td class="background-cream">{{ $data['payment_method_type_sales']['precio_domicilio']['cantidad'] }}</td>
+                <td class="background-cream">{{ $data['payment_method_type_sales']['precio_domicilio']['unitario'] }}</td>
+                <td class="background-cream">
+                    {{ $data['payment_method_type_sales']['precio_domicilio']['cantidad'] * $data['payment_method_type_sales']['precio_domicilio']['unitario'] }}
+                </td>
             </tr>
             <tr>
                 <td>PRECIO AL POR MAYOR</td>
-                <td colspan="2">[falta]</td>
-                <td>[falta]</td>
-                <td>[falta]</td>
-                <td>[falta]</td>
+                <td colspan="2"></td>
+                <td>{{ $data['payment_method_type_sales']['precio_mayor']['cantidad'] }}</td>
+                <td>{{ $data['payment_method_type_sales']['precio_mayor']['unitario'] }}</td>
+                <td>
+                    {{ $data['payment_method_type_sales']['precio_mayor']['cantidad'] * $data['payment_method_type_sales']['precio_mayor']['unitario'] }}
+                </td>
             </tr>
             <tr>
                 <td class="background-cream">PRECIO yuramayo</td>
-                <td class="background-cream" colspan="2">[falta]</td>
-                <td class="background-cream">[falta]</td>
-                <td class="background-cream">[falta]</td>
-                <td class="background-cream">[falta]</td>
+                <td class="background-cream" colspan="2"></td>
+                <td class="background-cream">{{ $data['payment_method_type_sales']['precio_yuramayo']['cantidad'] }}</td>
+                <td class="background-cream">{{ $data['payment_method_type_sales']['precio_yuramayo']['unitario'] }}</td>
+                <td class="background-cream">
+                    {{ $data['payment_method_type_sales']['precio_yuramayo']['cantidad'] * $data['payment_method_type_sales']['precio_yuramayo']['unitario'] }}
+                </td>
             </tr>
             <tr>
                 <td>VALVULA PREMIUM</td>
-                <td colspan="2">[falta]</td>
-                <td>[falta]</td>
-                <td>[falta]</td>
-                <td>[falta]</td>
+                <td colspan="2"></td>
+                <td>{{ $data['payment_method_type_sales']['valvula_premium']['cantidad'] }}</td>
+                <td>{{ $data['payment_method_type_sales']['valvula_premium']['unitario'] }}</td>
+                <td>
+                    {{ $data['payment_method_type_sales']['valvula_premium']['cantidad'] * $data['payment_method_type_sales']['valvula_premium']['unitario'] }}
+                </td>
             </tr>
             <tr>
                 <td class="background-cream">FISE DOMICILIO</td>
-                <td class="background-cream" colspan="2">[falta]</td>
-                <td class="background-cream">[falta]</td>
-                <td class="background-cream">[falta]</td>
-                <td class="background-cream">[falta]</td>
+                <td class="background-cream" colspan="2"></td>
+                <td class="background-cream">{{ $data['payment_method_type_sales']['fise_domicilio']['cantidad'] }}</td>
+                <td class="background-cream">{{ $data['payment_method_type_sales']['fise_domicilio']['unitario'] }}</td>
+                <td class="background-cream">
+                    {{ $data['payment_method_type_sales']['fise_domicilio']['cantidad'] * $data['payment_method_type_sales']['fise_domicilio']['unitario'] }}
+                </td>
             </tr>
             <tr>
                 <td>VENTA DE CILINDROS</td>
-                <td colspan="2">[falta]</td>
-                <td>[falta]</td>
-                <td>[falta]</td>
-                <td>[falta]</td>
+                <td colspan="2"></td>
+                <td>{{ $data['payment_method_type_sales']['venta_cilindros']['cantidad'] }}</td>
+                <td>{{ $data['payment_method_type_sales']['venta_cilindros']['unitario'] }}</td>
+                <td>
+                    {{ $data['payment_method_type_sales']['venta_cilindros']['cantidad'] * $data['payment_method_type_sales']['venta_cilindros']['unitario'] }}
+                </td>
             </tr>
             <tr>
                 <td class="background-cream">PAGO DE CREDITO</td>
-                <td class="background-cream" colspan="2">[falta]</td>
-                <td class="background-cream">[falta]</td>
-                <td class="background-cream">[falta]</td>
-                <td class="background-cream">[falta]</td>
+                <td class="background-cream" colspan="2"></td>
+                <td class="background-cream">{{ $data['payment_method_type_sales']['pago_credito']['cantidad'] }}</td>
+                <td class="background-cream">{{ $data['payment_method_type_sales']['pago_credito']['unitario'] }}</td>
+                <td class="background-cream">
+                    {{ $data['payment_method_type_sales']['pago_credito']['cantidad'] * $data['payment_method_type_sales']['pago_credito']['unitario'] }}
+                </td>
             </tr>
             <tr>
                 <td>PROMOCION</td>
-                <td colspan="2">[falta]</td>
-                <td>[falta]</td>
-                <td>[falta]</td>
-                <td>[falta]</td>
+                <td colspan="2"></td>
+                <td>{{ $data['payment_method_type_sales']['promocion']['cantidad'] }}</td>
+                <td>{{ $data['payment_method_type_sales']['promocion']['unitario'] }}</td>
+                <td>
+                    {{ $data['payment_method_type_sales']['promocion']['cantidad'] * $data['payment_method_type_sales']['promocion']['unitario'] }}
+                </td>
             </tr>
             <tr>
                 <td class="background-cream">CREDITO</td>
-                <td class="background-cream" colspan="2">[falta]</td>
-                <td class="background-cream">[falta]</td>
-                <td class="background-cream">[falta]</td>
-                <td class="background-cream">[falta]</td>
+                <td class="background-cream" colspan="2"></td>
+                <td class="background-cream">{{ $data['payment_method_type_sales']['credito']['cantidad'] }}</td>
+                <td class="background-cream">{{ $data['payment_method_type_sales']['credito']['unitario'] }}</td>
+                <td class="background-cream">
+                    {{ $data['payment_method_type_sales']['credito']['cantidad'] * $data['payment_method_type_sales']['credito']['unitario'] }}
+                </td>
             </tr>
             <tr>
                 <td class="background-green-1" colspan="5"><strong>TOTAL VENTAS</strong></td>
-                <td class="background-green-2">[llenar]</td>
+                <td class="background-green-2">{{ $data['payment_method_type_sales_total'] }}</td>
             </tr>
             <tr>
                 <td class="background-green-2"><strong>GASTOS</strong></td>
-                <td colspan="5">[falta]</td>
+                <td colspan="5"></td>
             </tr>
             <tr>
                 <td class="background-cream" colspan="5"><strong>COMBUSTIBLE</strong></td>
-                <td class="background-cream">[falta]</td>
+                <td class="background-cream"></td>
             </tr>
             <tr>
                 <td></td>
@@ -270,12 +288,12 @@
             </tr>
             <tr>
                 <td class="background-purple"><strong>YAPE</strong></td>
-                <td class="background-purple" colspan="4">[falta]</td>
-                <td class="background-purple">[falta]</td>
+                <td class="background-purple" colspan="4"></td>
+                <td class="background-purple"></td>
             </tr>
             <tr>
                 <td class="background-cream" colspan="5"><strong>TOTAL NETO A CANCELAR</strong></td>
-                <td class="background-orange">[llenar]</td>
+                <td class="background-orange"></td>
             </tr>
             <tr>
                 <td class="background-green-1"><strong>PROMOCIONES</strong></td>
