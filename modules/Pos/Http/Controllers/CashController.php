@@ -852,7 +852,6 @@ class CashController extends Controller
     private function getPdf($cash, $format = 'ticket', $mm = null)
     {
         $data = $this->setDataToReport($cash);
-        // dd($data);
 
         $quantity_rows = 30;//$cash->cash_documents()->count();
 

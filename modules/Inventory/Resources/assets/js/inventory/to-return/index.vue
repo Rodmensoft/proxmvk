@@ -2,58 +2,37 @@
     <div>
         <div class="card mb-0">
             <div class="card-header bg-info">
-                <h3 class="my-0">Listado de Productos por Devolver</h3>
+                <h3 class="my-0">Productos por devolver</h3>
             </div>
             <div class="card-body">
                 <data-table :resource="resource" ref="datatable">
                     <tr slot="heading">
-                        <th>
-                            <el-dropdown>
-                                <span class="el-dropdown-link">
-                                    <el-button>
-                                        <i class="fa fa-ellipsis-v"></i>
-                                    </el-button>
-                                </span>
-                                <el-dropdown-menu slot="dropdown">
-                                    <el-dropdown-item @click.native="onChecktAll">Seleccionar todo</el-dropdown-item>
-                                    <el-dropdown-item @click.native="onUnCheckAll">Deseleccionar todo</el-dropdown-item>
-                                    <el-dropdown-item @click.native="onOpenModalMoveGlobal">Trasladar</el-dropdown-item>
-                                    <el-dropdown-item @click.native="onOpenModalStockGlobal">Ajustar stock</el-dropdown-item>
-                                </el-dropdown-menu>
-                            </el-dropdown>
-                        </th>
                         <th>Producto</th>
-                        <th>Almacén</th>
-                        <th class="text-right">Stock</th>
+                        <th>Vendedor</th>
+                        <th>Cliente - DNI</th>
+                        <th>Dirección</th>
+                        <th>Fecha</th>
+                        <th>Fecha Vencimiento</th>
+                        <th>Cantidad</th>
                         <th class="text-right">Acciones</th>
                     </tr>
                     <tr slot-scope="{ index, row }" :key="index">
+                        <td>{{ row.item_description }}</td>
+                        <td>{{ row.user_name }}</td>
+                        <td>{{ row.customer_name }} - {{ row.customer_document }}</td>
+                        <td>{{ row.customer_address }}</td>
+                        <td>{{ row.date }}</td>
+                        <td>{{ row.due_date }}</td>
+                        <td>{{ row.quantity }}</td>
                         <td>
-                            <el-switch v-model="row.selected" @click="onChangeSelectedStatus(row)"></el-switch>
-                        </td>
-                        <!-- <td>{{ index }}</td> -->
-                        <td>{{ row.item_fulldescription }}</td>
-                        <td>{{ row.warehouse_description }}</td>
-                        <td class="text-right">{{ row.stock }}</td>
-                        <td class="text-right">
                             <button type="button" class="btn waves-effect waves-light btn-xs btn-info"
-                                    @click.prevent="clickMove(row.id)">Trasladar</button>
-                            <button v-if="typeUser == 'admin'" type="button" class="btn waves-effect waves-light btn-xs btn-warning"
-                                    @click.prevent="clickRemove(row.id)">Remover</button>
-                            <button type="button" class="btn waves-effect waves-light btn-xs btn-warning"
-                                    @click.prevent="clickStock(row.id)">
-                                Ajuste
-                                <el-tooltip class="item"
-                                            content="Ajuste: stock del sistema no cuadre con el stock real"
-                                            effect="dark"
-                                            placement="top">
-                                    <i class="fa fa-info-circle"></i>
-                                </el-tooltip>
-                            </button>
+                                    @click.prevent="clickDevolver(row.id, row.quantity)">Devolver</button>
                         </td>
                     </tr>
                 </data-table>
             </div>
+
+            <devolver-item :showDialog.sync="showDialogDevolver" :maxQuantity="maxQuantity" :recordId="recordId"></devolver-item>
         </div>
     </div>
 </template>
@@ -61,20 +40,22 @@
 <script>
 
 import DataTable from '@components/DataTable.vue'
+import DevolverItem from './devolver-item.vue'
 
 export default {
     props: ['type', 'typeUser'],
-    components: {DataTable},
+    components: {DataTable, DevolverItem},
     data() {
         return {
             showHideModalMoveGlobal: false,
             selectedItems: [],
             title: null,
             showDialog: false,
-            showDialogMove: false,
+            showDialogDevolver: false,
+            maxQuantity: 0,
             showDialogRemove: false,
             showDialogOutput: false,
-            resource: 'inventory',
+            resource: 'inventory-to-return',
             recordId: null,
             typeTransaction:null,
             showDialogMovementReport:false,
@@ -131,9 +112,10 @@ export default {
                 return r;
             });
         },
-        clickMove(recordId) {
+        clickDevolver(recordId, quantity) {
             this.recordId = recordId
-            this.showDialogMove = true
+            this.showDialogDevolver = true
+            this.maxQuantity = quantity
         },
         clickCreate(type) {
             this.recordId = null

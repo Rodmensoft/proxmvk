@@ -318,6 +318,9 @@ if ($hostname) {
 
             Route::prefix('inventory-to-return')->group(function () {
                 Route::get('', 'InventoryToReturnController@index')->name('tenant.inventory-to-return.index');
+                Route::get('records', 'InventoryToReturnController@records');
+                Route::get('columns', 'InventoryToReturnController@columns');
+                Route::post('devolver', 'InventoryToReturnController@devolver');
             });
 
 

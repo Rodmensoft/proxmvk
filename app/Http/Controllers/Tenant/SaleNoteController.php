@@ -689,6 +689,16 @@ class SaleNoteController extends Controller
                 }
                 // control de lotes
 
+                $establishment_id = auth()->user()->establishment_id;
+                $warehouse = Warehouse::where('establishment_id', $establishment_id)->first();
+                if ($row['to_return'] == false) {
+                    $item = ItemWarehouse::where([
+                        ['item_id', $row['item']['id']],
+                        ['warehouse_id', $warehouse->id]
+                    ])->first();
+                    $item->stock = $item->stock + ($row['quantity'] * 1);
+                    $item->save();
+                }
             }
 
             //pagos

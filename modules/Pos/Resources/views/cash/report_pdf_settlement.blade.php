@@ -160,7 +160,7 @@
             </tr>
             <tr>
                 <td colspan="5" class="background-green-1"><strong>TOTAL DE VENTAS DE GLP</strong></td>
-                <td class="background-green-2"></td>
+                <td class="background-green-2">{{ collect($data['all_items'])->sum('quantity') }}</td>
             </tr>
             <tr>
                 <td class="background-green-2"><strong>DEVOLUCIONES</strong></td>

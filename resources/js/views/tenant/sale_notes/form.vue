@@ -1104,6 +1104,8 @@
                 this.form.items.push(JSON.parse(JSON.stringify(row)));
             }
 
+            console.log(row)
+
             this.calculateTotal()
         },
         clickRemoveItem(index) {
