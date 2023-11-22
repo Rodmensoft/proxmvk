@@ -86,6 +86,8 @@
                                 <i class="fa fa-file-pdf"></i>
                                 PDF
                             </button>
+                            <button type="button" class="btn waves-effect waves-light btn-xs btn-danger"
+                                    @click.prevent="clickDelete(row.id)">Eliminar</button>
                         </td>
                         <!--<td class="text-right">
                                          <button type="button" class="btn waves-effect waves-light btn-xs btn-info"
