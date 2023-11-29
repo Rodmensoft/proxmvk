@@ -790,7 +790,6 @@
             'loadConfiguration',
         ]),
         clickEdiItem(row, index) {
-            // console.log(row.item_id)
             row.aux_index = index
             this.recordItem = row
             this.showDialogAddItem = true
@@ -909,9 +908,9 @@
         async isUpdate() {
 
             if (this.id) {
-                // console.log(this.id);
                 await this.$http.get(`/${this.resource}/record2/${this.id}`)
                     .then(response => {
+                        console.log(response)
                         this.form = response.data.data
                         this.setDataUpdate()
                         this.changeCurrencyType()

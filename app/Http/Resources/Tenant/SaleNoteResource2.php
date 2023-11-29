@@ -5,7 +5,7 @@ namespace App\Http\Resources\Tenant;
 use App\Models\Tenant\SaleNote;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Models\Tenant\Series;
-
+use Illuminate\Support\Facades\Log;
 
 class SaleNoteResource2 extends JsonResource
 {
@@ -17,6 +17,7 @@ class SaleNoteResource2 extends JsonResource
      */
     public function toArray($request)
     {
+        Log::error($this->items);
         $serie = Series::where('number', $this->series)->first();
         return [
             'number' => $this->number,
